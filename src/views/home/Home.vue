@@ -1,9 +1,18 @@
 <template>
   <!-- 整个首页唯一 比较合理 id home -->
+  <!-- 底下的方法都是箭头函数 所以this 都是组件对象 -->
   <div id="home">
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <!--  @tabClick= 接收子组件发送过来的数据  子传父-->
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabFixed"
+    ></tab-control>
     <!-- 添加滚动 -->
     <!-- :probe-type="3" 滚动设置为实时监听   @scroll="contentScroll"首页设置监听位置-->
     <scroll
@@ -17,14 +26,17 @@
       @scroll="contentScroll"
     >
       <!-- 父访问子组件的 recommends 与 banners -->
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper
+        :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      ></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
       <!--  @tabClick= 接收子组件发送过来的数据  子传父-->
       <tab-control
-        class="tab-control"
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
+        ref="tabControl2"
       ></tab-control>
       <good-list :goods="showGoods"></good-list>
     </scroll>
@@ -33,58 +45,6 @@
     <!-- v-show="true" 显示隐藏 -->
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
     <!-- ul>li{列表$}*100` -->
-    <!-- <ul>
-      <li>别聊1</li>
-      <li>别聊2</li>
-      <li>别聊3</li>
-      <li>别聊4</li>
-      <li>别聊5</li>
-      <li>别聊6</li>
-      <li>别聊7</li>
-      <li>别聊8</li>
-      <li>别聊9</li>
-      <li>别聊10</li>
-      <li>别聊11</li>
-      <li>别聊12</li>
-      <li>别聊13</li>
-      <li>别聊14</li>
-      <li>别聊15</li>
-      <li>别聊16</li>
-      <li>别聊17</li>
-      <li>别聊18</li>
-      <li>别聊19</li>
-      <li>别聊20</li>
-      <li>别聊21</li>
-      <li>别聊22</li>
-      <li>别聊23</li>
-      <li>别聊24</li>
-      <li>别聊25</li>
-      <li>别聊26</li>
-      <li>别聊27</li>
-      <li>别聊28</li>
-      <li>别聊29</li>
-      <li>别聊30</li>
-      <li>别聊31</li>
-      <li>别聊32</li>
-      <li>别聊33</li>
-      <li>别聊34</li>
-      <li>别聊35</li>
-      <li>别聊36</li>
-      <li>别聊37</li>
-      <li>别聊38</li>
-      <li>别聊39</li>
-      <li>别聊40</li>
-      <li>别聊41</li>
-      <li>别聊42</li>
-      <li>别聊43</li>
-      <li>别聊44</li>
-      <li>别聊45</li>
-      <li>别聊46</li>
-      <li>别聊47</li>
-      <li>别聊48</li>
-      <li>别聊49</li>
-      <li>别聊50</li>
-    </ul> -->
   </div>
 </template>
 
@@ -105,6 +65,7 @@ import BackTop from 'components/content/backTop/BackTop.vue';
 // 导入的方法组件
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'; // 用于对应接口的数据
+import { debounce } from 'common/utlis'; // 防抖
 
 export default {
   name: 'Home',
@@ -133,9 +94,13 @@ export default {
       // 默认展示 pop
       currentType: 'pop',
       isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      saveY: 0,
     };
   },
   created() {
+    // 还没挂载dom元素拿不到很正常
     // 组件创建完毕 函数
     // 这里面主要写主要逻辑 ！！
     // 具体逻辑在 methods
@@ -145,11 +110,35 @@ export default {
     this.getHomeGoods('pop'); // 流行数据
     this.getHomeGoods('new'); // 新增数据  这个数据好像是没了  找不到
     this.getHomeGoods('sell'); // 精选数据
-    // 3. 监听item中图片加载完成
+  },
+  destroyed() {
+    // 当我们点击其他页面回来的时候希望进行缓存
+    console.log('home destroyed');
+  },
+  activated() {
+    console.log('activated');
+    // 回到离开时的位置
+    this.$refs.scroll.scrollTo(0, this.saveY);
+    // 做一次刷新
+    this.$refs.scroll.refresh();
+  },
+  deactivated() {
+    // 记录离开时位置
+    // console.log(this.saveY);
+    this.saveY = this.$refs.scroll.getScrollY();
+  },
+  mounted() {
+    // 1. 事件监听item中图片加载完成
     // 这一段代码其实可以不用 因为已经通过插件的问题解决了图片滚动的问题 留着也没有影响 下次看好知道这个是干什么的
+    // this.$refs.scroll.refresh 不要加小括号 不然相当于执行
+    const refresh = debounce(this.$refs.scroll.refresh, 500); // 这个局部变量不会被销毁 下面闭包有引用
     this.$bus.$on('itemImageLoad', () => {
-      // console.log('哈哈哈');
-      this.$refs.scroll.scroll.refresh();
+      // console.log(this.$refs.scroll.refresh);
+      // console.log(this.$refs.scroll.scroll.refresh);
+      // console.log('~~~~~~~~~~');
+      // this.$refs.scroll && this.$refs.scroll.refresh();
+      refresh();
+      // 上面代码会执行30次 这个经过防抖 refresh() 直接执行这个就好了 原理自己看
     });
   },
 
@@ -176,6 +165,9 @@ export default {
         case 2:
           this.currentType = 'sell';
       }
+      // 两个 tabControl 保持同一个点击
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backClick() {
       // console.log('哈哈');
@@ -187,12 +179,23 @@ export default {
       // console.log(position);
       // position.y < 1000;
       // 返回顶部显示隐藏
+      // 1.判断 BackTop是否显示
       this.isShowBackTop = -position.y > 1000;
+
+      // 2.决定tabControl是否吸顶(position:fiex)
+
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
-      console.log('上拉加载更多');
+      // console.log('上拉加载更多');
       // currentType 是正在记录的那个
       this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      // 2.获取tabControl的offsetTop
+      // 所有的组件都有一个属性 $el:用于获取组件中的元素的
+      // console.log(this.$refs.tabControl.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
     /**
      * 网络请求相关的方法
@@ -223,7 +226,8 @@ export default {
         this.goods[type].page += 1;
 
         // 加载完调这个属性 可以连续下拉加载更多
-        this.$refs.scroll.finishPullUp();
+        //  this.$refs.scroll && this.$refs.scroll.finishPullUp();  判断是否有数据
+        this.$refs.scroll && this.$refs.scroll.finishPullUp();
       });
     },
   },
@@ -233,7 +237,7 @@ export default {
 <style lang="less" scoped>
 #home {
   // 对于对外边距的使用 官方推荐能用padding 就不要用 margin
-  padding-top: 44px;
+  // padding-top: 44px;
   height: 100vh; // vh 视图高度 100
   // padding-bottom: 800px;
   position: relative;
@@ -241,29 +245,36 @@ export default {
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
+
   // 这样会脱离文档流 盖住轮播图
   // 下次再出现滚动条的时候 把positon 取消掉看有没有用
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  // 被盖住了 给他提高层级
-  z-index: 9;
+  // 在使用浏览器原生滚动时 为了让导航 不跟随导航一起滚动
+  // position: fixed;
+  // left: 0;
+  // right: 0;
+  // top: 0;
+  // // 被盖住了 给他提高层级
+  // z-index: 9;
 }
 
+// 这个方法比较新 不太适合使用 换成 offsetTop
 .tab-control {
-  //   设置position:sticky同时给一个(top,bottom,right,left)之一即可
-  // 使用条件：
-  // 1、父元素不能overflow:hidden或者overflow:auto属性。
-  // 2、必须指定top、bottom、left、right4个值之一，否则只会处于相对定位
-  // 3、父元素的高度不能低于sticky元素的高度
-  // 4、sticky元素仅在其父元素内生效
-
-  // 粘性对位
-  position: sticky;
-  top: 44px;
+  position: relative;
+  // top: 44px;
   z-index: 9;
+  //   //   设置position:sticky同时给一个(top,bottom,right,left)之一即可
+  //   // 使用条件：
+  //   // 1、父元素不能overflow:hidden或者overflow:auto属性。
+  //   // 2、必须指定top、bottom、left、right4个值之一，否则只会处于相对定位
+  //   // 3、父元素的高度不能低于sticky元素的高度
+  //   // 4、sticky元素仅在其父元素内生效
+
+  //   // 粘性对位
+  //   position: sticky;
+  //   top: 44px;
+  //   z-index: 9;
 }
+
 .content {
   // 一种解决方案 定位
   position: absolute;

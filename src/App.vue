@@ -1,6 +1,10 @@
 <template>
   <div>
-    <router-view></router-view>
+    <!--   keep-alice 是 Vue 内置的一个组件 可以被包含的组件保留状态 或避免重新渲染 -->
+    <keep-alive exclude="Detail">
+      <router-view></router-view>
+      <!--当我们点击其他页面回来的时候希望进行缓存  -->
+    </keep-alive>
     <main-tab-bar></main-tab-bar>
   </div>
 </template>

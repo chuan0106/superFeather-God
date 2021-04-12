@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-item">
+  <div class="goods-item" @click="itemClick">
     <div>
       <!-- 千万 千万别忘记带 : -->
       <img :src="goodsItem.show.img" @load="imageLoad" alt="" />
@@ -27,9 +27,14 @@ export default {
   methods: {
     imageLoad() {
       // 检测图片加载完成
-      console.log('imageLoad');
+      // console.log('imageLoad');
       // 事件总线
+      // 现在没什么作用 留着下次知道这个是干嘛的
       this.$bus.$emit('itemImageLoad');
+    },
+    itemClick() {
+      console.log('跳转到详情页');
+      this.$router.push('/detail/' + this.goodsItem.iid);
     },
   },
 };

@@ -1,4 +1,10 @@
 // 公共的方法
-export function sum(num1, num2) {
-  return num + num2
+export function debounce(func, delay) {
+  let timer = null;
+  return function (...args) {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
 }

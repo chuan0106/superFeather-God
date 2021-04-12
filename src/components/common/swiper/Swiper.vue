@@ -35,12 +35,10 @@ export default {
       default: 300,
     },
     moveRatio: {
-      // 比例  滚动的比例 滚动多少 直接滚过去
       type: Number,
       default: 0.25,
     },
     showIndicator: {
-      // 默认显示指示器
       type: Boolean,
       default: true,
     },
