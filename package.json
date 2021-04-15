@@ -14,6 +14,8 @@
     "@better-scroll/pull-up": "^2.2.1",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "jutils-src": "^1.0.0-beta2",
+    "moment": "^2.29.1",
     "vue": "^2.6.11",
     "vue-router": "^3.5.1"
   },

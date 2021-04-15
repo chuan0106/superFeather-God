@@ -5,7 +5,9 @@
       <router-view></router-view>
       <!--当我们点击其他页面回来的时候希望进行缓存  -->
     </keep-alive>
-    <main-tab-bar></main-tab-bar>
+    <!-- 正则判断在详情页不显示  test() 方法用于检测一个字符串是否匹配某个模式.-->
+    <!-- <main-tab-bar></main-tab-bar> -->
+    <main-tab-bar v-if="!/^\/detail/.test($route.path)"></main-tab-bar>
   </div>
 </template>
 

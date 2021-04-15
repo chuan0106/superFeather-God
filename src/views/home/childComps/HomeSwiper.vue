@@ -37,6 +37,7 @@ export default {
   methods: {
     imageLoad() {
       if (!this.isLoad) {
+        // 事件只发送一次
         this.$emit('swiperImageLoad');
         this.isLoad = true;
       }

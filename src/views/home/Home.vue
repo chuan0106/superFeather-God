@@ -65,8 +65,9 @@ import BackTop from 'components/content/backTop/BackTop.vue';
 // 导入的方法组件
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'; // 用于对应接口的数据
-import { debounce } from 'common/utlis'; // 防抖
-
+// import { debounce } from 'common/utlis'; // 防抖
+// mixin 引入
+import { itemListenerMixin } from 'common/mixin';
 export default {
   name: 'Home',
   components: {
@@ -80,6 +81,7 @@ export default {
     Scroll,
     BackTop,
   },
+  mixins: [itemListenerMixin],
   data() {
     return {
       // result: null, // 定义个空的对象 以便接受数据
@@ -97,6 +99,8 @@ export default {
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
+      // 混入已经引过了
+      // itemImgListener: null,
     };
   },
   created() {
@@ -116,30 +120,36 @@ export default {
     console.log('home destroyed');
   },
   activated() {
-    console.log('activated');
+    // console.log('activated');
     // 回到离开时的位置
     this.$refs.scroll.scrollTo(0, this.saveY);
     // 做一次刷新
     this.$refs.scroll.refresh();
   },
   deactivated() {
-    // 记录离开时位置
-    // console.log(this.saveY);
+    // 1.保存记录离开的位置
     this.saveY = this.$refs.scroll.getScrollY();
+    // 2.取消全局事件的监听
+    this.$bus.$off('itemImageLoad', this.itemImgListener);
   },
   mounted() {
-    // 1. 事件监听item中图片加载完成
-    // 这一段代码其实可以不用 因为已经通过插件的问题解决了图片滚动的问题 留着也没有影响 下次看好知道这个是干什么的
-    // this.$refs.scroll.refresh 不要加小括号 不然相当于执行
-    const refresh = debounce(this.$refs.scroll.refresh, 500); // 这个局部变量不会被销毁 下面闭包有引用
-    this.$bus.$on('itemImageLoad', () => {
-      // console.log(this.$refs.scroll.refresh);
-      // console.log(this.$refs.scroll.scroll.refresh);
-      // console.log('~~~~~~~~~~');
-      // this.$refs.scroll && this.$refs.scroll.refresh();
-      refresh();
-      // 上面代码会执行30次 这个经过防抖 refresh() 直接执行这个就好了 原理自己看
-    });
+    // 加入了混入 mixin  这个所以用不到了
+    // // 1. 事件监听item中图片加载完成
+    // // 这一段代码其实可以不用 因为已经通过插件的问题解决了图片滚动的问题 留着也没有影响 下次看好知道这个是干什么的
+    // // this.$refs.scroll.refresh 不要加小括号 不然相当于执行
+    // const refresh = debounce(this.$refs.scroll.refresh, 500); // 这个局部变量不会被销毁 下面闭包有引用
+    // // 对监听的事件进行保存
+    // this.itemImgListener = () => {
+    //   refresh();
+    // };
+    // this.$bus.$on('itemImageLoad', () => {
+    //   // console.log(this.$refs.scroll.refresh);
+    //   // console.log(this.$refs.scroll.scroll.refresh);
+    //   // console.log('~~~~~~~~~~');
+    //   // this.$refs.scroll && this.$refs.scroll.refresh();
+    //   refresh();
+    //   // 上面代码会执行30次 这个经过防抖 refresh() 直接执行这个就好了 原理自己看
+    // });
   },
 
   computed: {

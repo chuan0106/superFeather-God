@@ -2,7 +2,8 @@
   <div class="goods-item" @click="itemClick">
     <div>
       <!-- 千万 千万别忘记带 : -->
-      <img :src="goodsItem.show.img" @load="imageLoad" alt="" />
+      <!-- <img :src="goodsItem.show.img" @load="imageLoad" alt="" /> -->
+      <img :src="showImage" @load="imageLoad" alt="" />
       <div class="goods-info">
         <p>{{ goodsItem.title }}</p>
         <!-- 商品价格描述 和 title -->
@@ -24,17 +25,42 @@ export default {
       },
     },
   },
+  computed: {
+    showImage() {
+      // 因为 Home 和Detail 同时引入这个组件 所以做个判断 逻辑或
+      return this.goodsItem.image || this.goodsItem.show.img;
+    },
+  },
   methods: {
     imageLoad() {
       // 检测图片加载完成
       // console.log('imageLoad');
       // 事件总线
       // 现在没什么作用 留着下次知道这个是干嘛的
+      // 判断是不是/home 里面
       this.$bus.$emit('itemImageLoad');
+
+      // if (this.$route.path.indexOf('/home')) {
+      //   this.$bus.$emit('homeImageLoad');
+      // } else if (this.$route.path.indexOf('/detail')) {
+      //   this.$bus.$emit('detailItemLoad');
+      // }
     },
     itemClick() {
-      console.log('跳转到详情页');
-      this.$router.push('/detail/' + this.goodsItem.iid);
+      // console.log('跳转到详情页');
+      // console.log(this.$route.path);
+      // console.log(this.$route.path.indexOf('/home'));
+      // 判断 detail 底下那些图片不跳转
+      // if (this.$route.path == '/home') {
+      //   this.$router.push('/detail/' + this.goodsItem.iid);
+      // }
+      // console.log(this.$route.path.indexOf('/home') == -1);
+      if (this.$route.path.indexOf('/home') !== -1) {
+        this.$router.push('/detail/' + this.goodsItem.iid);
+      }
+      // if (/^\/home/.test(this.$route.path)) {
+      //   this.$router.push('/detail/' + this.goodsItem.iid);
+      // }
     },
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div id="detail">
+  <div>
     <nav-bar>
       <div @click="backClick" slot="left" class="back">
         <img src="~assets/img/common/back.svg" alt="" />
@@ -22,8 +22,10 @@
 <script>
 import NavBar from 'components/common/navbar/NavBar.vue';
 export default {
-  components: { NavBar },
-  NavBar: 'Detail',
+  name: 'DetailNavBar',
+  components: {
+    NavBar,
+  },
   data() {
     return {
       titles: ['商品', '参数', '评论', '推荐'],
@@ -33,6 +35,7 @@ export default {
   methods: {
     titleClick(index) {
       this.currentIndex = index;
+      this.$emit('titleClick', index);
     },
     backClick() {
       // 返回
