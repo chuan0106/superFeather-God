@@ -60,14 +60,14 @@ import NavBar from 'components/common/navbar/NavBar.vue';
 import TabControl from 'components/content/tabControl/tabControl.vue';
 import GoodList from 'components/content/goods/GoodsList';
 import Scroll from 'components/common/scroll/Scroll';
-import BackTop from 'components/content/backTop/BackTop.vue';
+// import BackTop from 'components/content/backTop/BackTop.vue';
 
 // 导入的方法组件
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'; // 用于对应接口的数据
 // import { debounce } from 'common/utlis'; // 防抖
 // mixin 引入
-import { itemListenerMixin } from 'common/mixin';
+import { itemListenerMixin, backTopMixin } from 'common/mixin';
 export default {
   name: 'Home',
   components: {
@@ -79,9 +79,9 @@ export default {
     TabControl,
     GoodList,
     Scroll,
-    BackTop,
+    // BackTop,
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       // result: null, // 定义个空的对象 以便接受数据
@@ -95,7 +95,7 @@ export default {
       },
       // 默认展示 pop
       currentType: 'pop',
-      isShowBackTop: false,
+      // isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0,
@@ -179,23 +179,25 @@ export default {
       this.$refs.tabControl1.currentIndex = index;
       this.$refs.tabControl2.currentIndex = index;
     },
-    backClick() {
-      // console.log('哈哈');
-      // 父访问子 拿到 ref="scroll" 里面的 scroll
-      // this.$refs.scroll.scroll.scrollTo(0, 0, 300);\
-      this.$refs.scroll.scrollTo(0, 0); // 调用的是 scroll 的方法 scrollTO
-    },
+    // backClick() {
+    //   // console.log('哈哈');
+    //   // 父访问子 拿到 ref="scroll" 里面的 scroll
+    //   // this.$refs.scroll.scroll.scrollTo(0, 0, 300);\
+    //   this.$refs.scroll.scrollTo(0, 0); // 调用的是 scroll 的方法 scrollTO
+    // },
     contentScroll(position) {
       // console.log(position);
       // position.y < 1000;
       // 返回顶部显示隐藏
       // 1.判断 BackTop是否显示
-      this.isShowBackTop = -position.y > 1000;
+      // this.isShowBackTop = -position.y > 1000;
+      this.listenShoBackTop(position);
 
       // 2.决定tabControl是否吸顶(position:fiex)
 
       this.isTabFixed = -position.y > this.tabOffsetTop;
     },
+
     loadMore() {
       // console.log('上拉加载更多');
       // currentType 是正在记录的那个

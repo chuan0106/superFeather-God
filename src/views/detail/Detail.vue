@@ -32,6 +32,8 @@
       ></detail-comment-info>
       <goods-list ref="recommend" :goods="recommends"></goods-list>
     </scroll>
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -45,13 +47,14 @@ import DetailShopInfo from './childComps/DetailShopInfo';
 import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue';
 import DetailParamInfo from './childComps/DetailParamInfo.vue';
 import DetailCommentInfo from './childComps/DetailCommentInfo.vue';
+import DetailBottomBar from './childComps/DetailBottomBar.vue';
 
 import GoodsList from 'components/content/goods/GoodsList.vue';
 
 import { debounce } from 'common/utlis'; // 防抖
 
 // mixin 引入
-import { itemListenerMixin } from 'common/mixin';
+import { itemListenerMixin, backTopMixin } from 'common/mixin';
 
 import {
   getDetail,
@@ -70,10 +73,12 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
+
     GoodsList,
   },
   name: 'Detail',
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       iid: null,
@@ -178,6 +183,9 @@ export default {
       this.$refs.scroll.scrollTo(0, -this.themTopYs[index], 300);
     },
     contentScroll(position) {
+      // 混入 判断距离返回顶部
+      this.listenShoBackTop(position);
+
       // 获取Y值
       const positionY = -position.y;
       // console.log(position);
@@ -218,6 +226,26 @@ export default {
           this.$refs.navBar.currentIndex = this.currentIndex;
         }
       }
+    },
+    addToCart() {
+      // 1.获取购物车需要展示的信息
+      const product = {};
+      // 去除第二张图片
+      product.image = this.topImages[1];
+      product.title = this.goods.title;
+      // 描述
+      product.desc = this.goods.desc;
+      // 价格
+      product.price = this.goods.price;
+
+      // 商品标识 一定要拿
+      product.iid = this.iid;
+
+      // 2.将商品添加购物车
+      // 不要直接添加
+      // this.$store.cartList.push(product)
+      // this.$store.commit('addCart', product);
+      this.$store.dispatch('addCart', product);
     },
   },
   mounted() {
@@ -262,5 +290,7 @@ export default {
 }
 .content {
   height: calc(100% - 44px);
+  position: relative;
+  bottom: 49px;
 }
 </style>
