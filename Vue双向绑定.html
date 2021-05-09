@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<script src="./node_modules//vue/dist/vue.js"></script>
+
+<body>
+  <div id="app">
+    <input v-model="message" /> {{message}}
+  </div>
+  <script>
+    class Vue {
+      constructor(options) {
+        // 1 保存数据
+        this.$options = options
+        this.$data = options.data
+        this.$el = options.el
+
+        // 2. 将data添加到响应式系统中
+        new Observer(this.$data)
+
+        // 3. 代理this.$data的数据
+        Observer.keys(this.$data).forEach(key => {
+          this._proxy(key)
+        })
+        // 4.处理el
+        new Compiler(this.$el, this)
+      }
+
+      _proxy(key) {
+        Object.defineProperty(this, key, {
+          configurable: true,
+          enumerable: true,
+          set(newValue) {
+            this.$data[key] = newValue
+          },
+          get() {
+            return this.$data[key]
+          }
+        })
+      }
+    }
+    class Observer {
+      constructor(data) {
+        this.data = data
+
+        Object.keys(data).forEach(key => {
+          this.defineReactive(this.data, key, data[key])
+        })
+      }
+      defineReactive(data, key, val) {
+        // 一个属性key=》 dep对象
+        const dep = new Dep()
+        Object.defineProperty(data, key, {
+          enumerable: true,
+          configurable: true,
+          get() {
+            if (Dep.target) {
+              dep.addSub(Dep.target)
+            }
+            return val
+          },
+          set(newValue) {
+            if (newValue === val) {
+              return
+            }
+            val = newValue
+            dep.notify()
+          }
+        })
+      }
+    }
+
+    class Dep {
+      constructor() {
+        this.subscribe = []
+      }
+      addSub(Watcher) {
+        this.subscribe.push(Watcher)
+      }
+      notify() {
+        this.subscribe.forEach(item => {
+          item.update()
+        })
+      }
+    }
+
+    // 订阅者
+    class Watcher {
+      constructor(node, name, vm) {
+        this.name = name
+        this.node = node
+        this.vm = vm
+      }
+      update() {
+        console.log(this.name + '发生update');
+      }
+    }
+
+    const app = new Vue({
+      el: '#app',
+      data: {
+        message: '你好啊 小帅哥'
+      }
+    })
+  </script>
+</body>
+
+</html>

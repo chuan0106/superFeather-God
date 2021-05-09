@@ -3,7 +3,7 @@
     <div>
       <!-- 千万 千万别忘记带 : -->
       <!-- <img :src="goodsItem.show.img" @load="imageLoad" alt="" /> -->
-      <img :src="showImage" @load="imageLoad" alt="" />
+      <img v-lazy="showImage" @load="imageLoad" alt="" />
       <div class="goods-info">
         <p>{{ goodsItem.title }}</p>
         <!-- 商品价格描述 和 title -->
@@ -21,14 +21,14 @@ export default {
     goodsItem: {
       type: Object,
       default() {
-        return {};
+        return {}
       },
     },
   },
   computed: {
     showImage() {
       // 因为 Home 和Detail 同时引入这个组件 所以做个判断 逻辑或
-      return this.goodsItem.image || this.goodsItem.show.img;
+      return this.goodsItem.image || this.goodsItem.show.img
     },
   },
   methods: {
@@ -38,7 +38,7 @@ export default {
       // 事件总线
       // 现在没什么作用 留着下次知道这个是干嘛的
       // 判断是不是/home 里面
-      this.$bus.$emit('itemImageLoad');
+      this.$bus.$emit('itemImageLoad')
 
       // if (this.$route.path.indexOf('/home')) {
       //   this.$bus.$emit('homeImageLoad');
@@ -56,14 +56,14 @@ export default {
       // }
       // console.log(this.$route.path.indexOf('/home') == -1);
       if (this.$route.path.indexOf('/home') !== -1) {
-        this.$router.push('/detail/' + this.goodsItem.iid);
+        this.$router.push('/detail/' + this.goodsItem.iid)
       }
       // if (/^\/home/.test(this.$route.path)) {
       //   this.$router.push('/detail/' + this.goodsItem.iid);
       // }
     },
   },
-};
+}
 </script>
 
 <style scoped>

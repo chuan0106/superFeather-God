@@ -34,27 +34,30 @@
     </scroll>
     <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+    <!-- <toast :message="message" :show="show"></toast> -->
   </div>
 </template>
 
 <script>
-import Scroll from 'components/common/scroll/Scroll.vue';
+import Scroll from 'components/common/scroll/Scroll.vue'
 
-import DetailNavBar from './childComps/DetailNavBar.vue';
-import DetailSwiper from './childComps/DetailSwiper.vue';
-import DetailBaseInfo from './childComps/DetailBaseInfo.vue';
-import DetailShopInfo from './childComps/DetailShopInfo';
-import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue';
-import DetailParamInfo from './childComps/DetailParamInfo.vue';
-import DetailCommentInfo from './childComps/DetailCommentInfo.vue';
-import DetailBottomBar from './childComps/DetailBottomBar.vue';
+import DetailNavBar from './childComps/DetailNavBar.vue'
+import DetailSwiper from './childComps/DetailSwiper.vue'
+import DetailBaseInfo from './childComps/DetailBaseInfo.vue'
+import DetailShopInfo from './childComps/DetailShopInfo'
+import DetailGoodsInfo from './childComps/DetailGoodsInfo.vue'
+import DetailParamInfo from './childComps/DetailParamInfo.vue'
+import DetailCommentInfo from './childComps/DetailCommentInfo.vue'
+import DetailBottomBar from './childComps/DetailBottomBar.vue'
 
-import GoodsList from 'components/content/goods/GoodsList.vue';
+import GoodsList from 'components/content/goods/GoodsList.vue'
 
-import { debounce } from 'common/utlis'; // 防抖
+import { debounce } from 'common/utlis' // 防抖
 
 // mixin 引入
-import { itemListenerMixin, backTopMixin } from 'common/mixin';
+import { itemListenerMixin, backTopMixin } from 'common/mixin'
+// import Toast from 'components/common/toast/Toast'
+import { mapActions } from 'vuex'
 
 import {
   getDetail,
@@ -62,7 +65,7 @@ import {
   Shop,
   GoodsParam,
   getRecommend,
-} from 'network/detail';
+} from 'network/detail'
 export default {
   components: {
     Scroll,
@@ -74,8 +77,8 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     DetailBottomBar,
-
     GoodsList,
+    // Toast,
   },
   name: 'Detail',
   mixins: [itemListenerMixin, backTopMixin],
@@ -93,59 +96,61 @@ export default {
       themTopYs: [],
       getThemTopY: null,
       currentIndex: 0,
-    };
+      // message: '',
+      // show: false,
+    }
   },
   created() {
     // 1.保存存入的iid
-    // console.log(this.$route.params);
-    this.iid = this.$route.params.iid;
+    console.log(this.$route.params)
+    this.iid = this.$route.params.iid
 
     // 2.根据iid请求详情数据
     getDetail(this.iid).then((res) => {
-      // console.log(res);
+      console.log(res)
       // 1.获取顶部的图片轮播数据
-      const data = res.result;
-      this.topImages = data.itemInfo.topImages;
+      const data = res.result
+      this.topImages = data.itemInfo.topImages
       // 2.获取商品信息
       this.goods = new Goods(
         data.itemInfo,
         data.columns,
         data.shopInfo.services
-      );
+      )
       // 3.创建店铺信息的对象
-      this.Shop = new Shop(data.shopInfo);
+      this.Shop = new Shop(data.shopInfo)
 
       // 4.保存商品的详情数据
-      this.detailInfo = data.detailInfo;
+      this.detailInfo = data.detailInfo
 
       // 5.保存参数信息
       this.paramInfo = new GoodsParam(
         data.itemParams.info,
         data.itemParams.rule
-      );
+      )
 
       // 6.保存评论信息
       // 因为并不是所有商品都有评论信息 所以做个判断
       if (data.rate.list) {
-        this.commentInfo = data.rate.list[0];
+        this.commentInfo = data.rate.list[0]
       }
-    });
+    })
     // 3.请求推荐数据
     getRecommend().then((res) => {
       // console.log(res);
-      this.recommends = res.data.list;
-    });
+      this.recommends = res.data.list
+    })
     // 4.给getThemTopY 赋值(对给 this.themTopYs 赋值的操作进行防抖)
     this.getThemTopY = debounce(() => {
-      this.themTopYs = [];
-      this.themTopYs.push(0);
+      this.themTopYs = []
+      this.themTopYs.push(0)
       // 因为顶上的 NavBar 占用了44px
-      this.themTopYs.push(this.$refs.params.$el.offsetTop - 44);
-      this.themTopYs.push(this.$refs.comment.$el.offsetTop - 44);
-      this.themTopYs.push(this.$refs.recommend.$el.offsetTop - 44);
-      this.themTopYs.push(Number.MAX_VALUE);
-      console.log(this.themTopYs);
-    }, 100);
+      this.themTopYs.push(this.$refs.params.$el.offsetTop - 44)
+      this.themTopYs.push(this.$refs.comment.$el.offsetTop - 44)
+      this.themTopYs.push(this.$refs.recommend.$el.offsetTop - 44)
+      this.themTopYs.push(Number.MAX_VALUE)
+      console.log(this.themTopYs)
+    }, 100)
     // 第一次获取 值不对
     // 原因:this.$refs.params.$el 压根没有渲染
     // this.themTopYs = [];
@@ -167,33 +172,34 @@ export default {
       // this.themTopYs.push(this.$refs.comment.$el.offsetTop);
       // this.themTopYs.push(this.$refs.recommend.$el.offsetTop);
       // console.log(this.themTopYs);
-    });
+    })
   },
   methods: {
+    ...mapActions(['addCart']),
     imageLoad() {
       // 第一种 判断
       // this.$refs.scroll.refresh();
       // 另一种 在混入里添加里 refresh
-      this.refresh();
+      this.refresh()
       // 点击到对应位置进行防抖
-      this.getThemTopY();
+      this.getThemTopY()
     },
     titleClick(index) {
-      console.log(index);
-      this.$refs.scroll.scrollTo(0, -this.themTopYs[index], 300);
+      console.log(index)
+      this.$refs.scroll.scrollTo(0, -this.themTopYs[index], 300)
     },
     contentScroll(position) {
       // 混入 判断距离返回顶部
-      this.listenShoBackTop(position);
+      this.listenShoBackTop(position)
 
       // 获取Y值
-      const positionY = -position.y;
+      const positionY = -position.y
       // console.log(position);
       // 2.positonY和主体中值进行对比
       // [0, 7911, 8546, 8857,特别大的值]
       // console.log(Number.MAX_VALUE);
 
-      let length = this.themTopYs.length;
+      let length = this.themTopYs.length
       // 数据里有个最大值 只是为了做判断的 所以要将它减掉
       // 如果用第一种方法的话不能减
       for (let i = 0; i < length - 1; i++) {
@@ -221,31 +227,45 @@ export default {
           positionY >= this.themTopYs[i] &&
           positionY < this.themTopYs[i + 1]
         ) {
-          this.currentIndex = i;
-          console.log(this.currentIndex);
-          this.$refs.navBar.currentIndex = this.currentIndex;
+          this.currentIndex = i
+          console.log(this.currentIndex)
+          this.$refs.navBar.currentIndex = this.currentIndex
         }
       }
     },
     addToCart() {
       // 1.获取购物车需要展示的信息
-      const product = {};
+      const product = {}
+      console.log(this.goods)
+
       // 去除第二张图片
-      product.image = this.topImages[1];
-      product.title = this.goods.title;
+      product.image = this.topImages[1]
+      product.title = this.goods.title
       // 描述
-      product.desc = this.goods.desc;
+      product.desc = this.goods.desc
       // 价格
-      product.price = this.goods.price;
+      product.price = this.goods.realPrice
 
       // 商品标识 一定要拿
-      product.iid = this.iid;
+      product.iid = this.iid
 
-      // 2.将商品添加购物车
+      // 2.将商品添加购物车  (1.Promise  2. mapActions)
       // 不要直接添加
       // this.$store.cartList.push(product)
       // this.$store.commit('addCart', product);
-      this.$store.dispatch('addCart', product);
+      this.addCart(product).then((res) => {
+        // console.log(res)
+        // this.show = true
+        // this.message = res
+        // setTimeout(() => {
+        //   this.show = false
+        //   this.message = ''
+        // }, 1500)
+        this.$toast.show(res)
+      })
+      // this.$store.dispatch('addCart', product).then((res) => {
+      //   console.log(res)
+      // })
     },
   },
   mounted() {
@@ -269,10 +289,10 @@ export default {
   },
   destroyed() {
     // 取消事件总线的方法 第二个参数是一个函数
-    this.$bus.$off('itemImageLoad', this.itemImgListener);
+    this.$bus.$off('itemImageLoad', this.itemImgListener)
     // console.log('走了哈');
   },
-};
+}
 </script>
 
 <style lang="less" scoped>

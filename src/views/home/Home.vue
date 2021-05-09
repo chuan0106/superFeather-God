@@ -51,23 +51,23 @@
 <script>
 // 导入的孩子组件
 
-import HomeSwiper from './childComps/HomeSwiper';
-import RecommendView from './childComps/RecommendView.vue';
-import FeatureView from './childComps/FeatureView.vue';
+import HomeSwiper from './childComps/HomeSwiper'
+import RecommendView from './childComps/RecommendView.vue'
+import FeatureView from './childComps/FeatureView.vue'
 
 // 导入的公共组件
-import NavBar from 'components/common/navbar/NavBar.vue';
-import TabControl from 'components/content/tabControl/tabControl.vue';
-import GoodList from 'components/content/goods/GoodsList';
-import Scroll from 'components/common/scroll/Scroll';
+import NavBar from 'components/common/navbar/NavBar.vue'
+import TabControl from 'components/content/tabControl/tabControl.vue'
+import GoodList from 'components/content/goods/GoodsList'
+import Scroll from 'components/common/scroll/Scroll'
 // import BackTop from 'components/content/backTop/BackTop.vue';
 
 // 导入的方法组件
 
-import { getHomeMultidata, getHomeGoods } from 'network/home'; // 用于对应接口的数据
+import { getHomeMultidata, getHomeGoods } from 'network/home' // 用于对应接口的数据
 // import { debounce } from 'common/utlis'; // 防抖
 // mixin 引入
-import { itemListenerMixin, backTopMixin } from 'common/mixin';
+import { itemListenerMixin, backTopMixin } from 'common/mixin'
 export default {
   name: 'Home',
   components: {
@@ -101,7 +101,7 @@ export default {
       saveY: 0,
       // 混入已经引过了
       // itemImgListener: null,
-    };
+    }
   },
   created() {
     // 还没挂载dom元素拿不到很正常
@@ -109,28 +109,28 @@ export default {
     // 这里面主要写主要逻辑 ！！
     // 具体逻辑在 methods
     // 1. 请求多个数据
-    this.getHomeMultidata(); // 然后在调用一下下面的函数 写 this 是在调 下面的
+    this.getHomeMultidata() // 然后在调用一下下面的函数 写 this 是在调 下面的
     // 2. 请求商品数据
-    this.getHomeGoods('pop'); // 流行数据
-    this.getHomeGoods('new'); // 新增数据  这个数据好像是没了  找不到
-    this.getHomeGoods('sell'); // 精选数据
+    this.getHomeGoods('pop') // 流行数据
+    this.getHomeGoods('new') // 新增数据  这个数据好像是没了  找不到
+    this.getHomeGoods('sell') // 精选数据
   },
   destroyed() {
     // 当我们点击其他页面回来的时候希望进行缓存
-    console.log('home destroyed');
+    console.log('home destroyed')
   },
   activated() {
     // console.log('activated');
     // 回到离开时的位置
-    this.$refs.scroll.scrollTo(0, this.saveY);
+    this.$refs.scroll.scrollTo(0, this.saveY)
     // 做一次刷新
-    this.$refs.scroll.refresh();
+    this.$refs.scroll.refresh()
   },
   deactivated() {
     // 1.保存记录离开的位置
-    this.saveY = this.$refs.scroll.getScrollY();
+    this.saveY = this.$refs.scroll.getScrollY()
     // 2.取消全局事件的监听
-    this.$bus.$off('itemImageLoad', this.itemImgListener);
+    this.$bus.$off('itemImageLoad', this.itemImgListener)
   },
   mounted() {
     // 加入了混入 mixin  这个所以用不到了
@@ -155,7 +155,7 @@ export default {
   computed: {
     showGoods() {
       // 这段代码 放到html页面上 可能会有点长 通过计算属性获取会更好 但也不是不可以
-      return this.goods[this.currentType].list;
+      return this.goods[this.currentType].list
     },
   },
   methods: {
@@ -163,21 +163,21 @@ export default {
      * 事件监听相关的方法
      */
     tabClick(index) {
-      console.log(index);
+      console.log(index)
       // switch 循环遍历查找 index 现在是0 也就是 pop  当发生点击的时候 改变对应的
       switch (index) {
         case 0:
-          this.currentType = 'pop';
-          break;
+          this.currentType = 'pop'
+          break
         case 1:
-          this.currentType = 'new';
-          break;
+          this.currentType = 'new'
+          break
         case 2:
-          this.currentType = 'sell';
+          this.currentType = 'sell'
       }
       // 两个 tabControl 保持同一个点击
-      this.$refs.tabControl1.currentIndex = index;
-      this.$refs.tabControl2.currentIndex = index;
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     // backClick() {
     //   // console.log('哈哈');
@@ -191,23 +191,23 @@ export default {
       // 返回顶部显示隐藏
       // 1.判断 BackTop是否显示
       // this.isShowBackTop = -position.y > 1000;
-      this.listenShoBackTop(position);
+      this.listenShoBackTop(position)
 
       // 2.决定tabControl是否吸顶(position:fiex)
 
-      this.isTabFixed = -position.y > this.tabOffsetTop;
+      this.isTabFixed = -position.y > this.tabOffsetTop
     },
 
     loadMore() {
       // console.log('上拉加载更多');
       // currentType 是正在记录的那个
-      this.getHomeGoods(this.currentType);
+      this.getHomeGoods(this.currentType)
     },
     swiperImageLoad() {
       // 2.获取tabControl的offsetTop
       // 所有的组件都有一个属性 $el:用于获取组件中的元素的
       // console.log(this.$refs.tabControl.$el.offsetTop);
-      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
     },
     /**
      * 网络请求相关的方法
@@ -219,31 +219,31 @@ export default {
       getHomeMultidata().then((res) => {
         // console.log(res); // 这段代码执行完之后就没意义了 函数作用域
         // this.result = res; // 这个箭头函数的 this 指向的是 这个组件对象 把这个数据存在 result
-        this.banners = res.data.banner.list; // 拿到数据的 banner
-        this.recommends = res.data.recommend.list;
-      }); //  因为这个函数getHomeMultiData 把 request 的返回值返回了 而他的返回值是 promise
+        this.banners = res.data.banner.list // 拿到数据的 banner
+        this.recommends = res.data.recommend.list
+      }) //  因为这个函数getHomeMultiData 把 request 的返回值返回了 而他的返回值是 promise
     },
     getHomeGoods(type) {
       // 上拉请求完数据 动态请求下一页
       // goods[type] type 是下面的变量
       // console.log(this.goods);
       // console.log(this.goods['pop']); // 地下那个type 就是对应的数据
-      let page = this.goods[type].page + 1; // js 中可以使用两种方法获取属性值 [] 个 . 语法都是可以的
+      let page = this.goods[type].page + 1 // js 中可以使用两种方法获取属性值 [] 个 . 语法都是可以的
       getHomeGoods(type, page).then((res) => {
         // console.log(res);
         // res=> pop 前 30 条数据 page : 1
         // console.log(res.data.list);
-        this.goods[type].list.push(...res.data.list); // 函数级作用于 这个数据存储到上面的 goods 中 这个是获取第一组数据
+        this.goods[type].list.push(...res.data.list) // 函数级作用于 这个数据存储到上面的 goods 中 这个是获取第一组数据
         // 之后页码也要加上 1 page +=1
-        this.goods[type].page += 1;
+        this.goods[type].page += 1
 
         // 加载完调这个属性 可以连续下拉加载更多
         //  this.$refs.scroll && this.$refs.scroll.finishPullUp();  判断是否有数据
-        this.$refs.scroll && this.$refs.scroll.finishPullUp();
-      });
+        this.$refs.scroll && this.$refs.scroll.finishPullUp()
+      })
     },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>

@@ -8,20 +8,23 @@
     <!-- 商品列表 -->
     <cartlist class="cart-list"></cartlist>
     <!-- 底部汇总 -->
+    <cart-button-bar></cart-button-bar>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters } from 'vuex'
 
-import NavBar from 'components/common/navbar/NavBar.vue';
+import NavBar from 'components/common/navbar/NavBar.vue'
 
-import Cartlist from './childComps/Cartlist.vue';
+import Cartlist from './childComps/Cartlist.vue'
+import CartButtonBar from './childComps/CartButtonBar.vue'
 export default {
   name: 'Cart',
   components: {
     NavBar,
     Cartlist,
+    CartButtonBar,
   },
   computed: {
     // getters 转成计算属性
@@ -35,7 +38,7 @@ export default {
     //   return this.$store.getters.cartLength;
     // },
   },
-};
+}
 </script>
 
 <style lang="less" scoped>

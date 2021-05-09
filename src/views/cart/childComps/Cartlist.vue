@@ -6,11 +6,12 @@
       :pull-up-load="true"
       :observeDOM="true"
       :observeImage="true"
+      ref="scroll"
     >
       <cart-list-item
         v-for="item in cartList"
         :key="item.id"
-        :product="item"
+        :item-info="item"
       ></cart-list-item>
     </scroll>
   </div>
@@ -30,13 +31,16 @@ export default {
   computed: {
     ...mapGetters(['cartList']),
   },
+  activated() {
+    this.$refs.scroll.refresh();
+  },
 };
 </script>
 
 <style lang="less" scoped>
 .cart-list {
   // height: calc(100% - 44px -49px);
-  height: calc(100% - 44px - 49px);
+  height: calc(100% - 44px - 49px - 40px);
 }
 .content {
   height: 100%;

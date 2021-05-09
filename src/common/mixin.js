@@ -4,14 +4,14 @@ import BackTop from 'components/content/backTop/BackTop.vue'; // 返回顶部
 
 // 组件之间相同方法 可以通过混入
 export const itemListenerMixin = {
-  data() {
+  data () {
     return {
       itemImgListener: null,
       // 另一种方法 定义个refresh 空的值
       refresh: null
     }
   },
-  mounted() {
+  mounted () {
     this.refresh = debounce(this.$refs.scroll.refresh, 1000);
     // let refresh = debounce(this.$refs.scroll.refresh, 1000);
     // 这样的话混入的组件都有这个属性了  也就是说就防止例如:   this.name='xc 需要被创建多次的话
@@ -29,19 +29,19 @@ export const backTopMixin = {
   components: {
     BackTop
   },
-  data() {
+  data () {
     return {
       isShowBackTop: false
     }
   },
   methods: {
-    backClick() {
+    backClick () {
       // console.log('哈哈');
       // 父访问子 拿到 ref="scroll" 里面的 scroll
       // this.$refs.scroll.scroll.scrollTo(0, 0, 300);\
       this.$refs.scroll.scrollTo(0, 0); // 调用的是 scroll 的方法 scrollTO
     },
-    listenShoBackTop(position) {
+    listenShoBackTop (position) {
       this.isShowBackTop = -position.y > 1000;
     }
   },
